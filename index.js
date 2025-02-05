@@ -25,6 +25,6 @@ app.get('/', (req, res)=>{
 app.use('/api/v1/user',UserRouter)
 app.use('/api/v1/admin',AdminRouter)
 
-app.listen(process.env.PORT, ()=>{
+app.listen(process.env.PORT || 3000, ()=>{
     console.log("server running at : ",process.env.PORT)
 })
