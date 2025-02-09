@@ -6,9 +6,17 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { auth } from "../middlewares/auth.js";
 import { OAuth2Client } from "google-auth-library";
+import Razorpay from "razorpay";
+import crypto from 'crypto'
+
 
 const UserRouter = Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret:process.env.RAZORPAY_SECRET_KEY
+})
 
 // User Signup
 UserRouter.post("/signup", async (req, res) => {
@@ -248,5 +256,52 @@ UserRouter.delete("/deleteuser", auth, async (req, res) => {
     res.status(500).json({ message: "Error deleting user", error: error.message });
   }
 });
+
+
+//creating order
+UserRouter.post('/create-order', async (req,res)=>{
+  const {amount, currency} = req.body;
+
+  const options = {
+    amount: amount*100,
+    currency:currency || "INR",
+    receipt: `receipt_${Date.now()}`
+  } 
+  
+  try {
+    const order = await razorpay.orders.create(options)
+    res.json({
+      message:'order created',
+      order
+    })
+
+  } catch (error) {
+    res.json({
+      message:`error fetching data ${error}`
+    })
+  }
+  
+})
+
+UserRouter.post('/verify-payment', (req,res)=>{
+  const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
+
+  const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
+                                    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                                    .digest('hex')
+
+  if(generatedSignature == razorpay_signature){
+    res.json({
+      success:true,
+      message: 'payment verified successfully'
+    })
+  }else{
+    res.json({
+      success:false,
+      message:'invalid signature'
+    })
+  }
+
+})
 
 export { UserRouter };
