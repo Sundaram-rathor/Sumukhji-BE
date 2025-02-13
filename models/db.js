@@ -63,6 +63,9 @@ const ProductSchema = new Schema(
         "Other",
       ],
     },
+    sku_id:{
+      type:String,
+    },
     stock: {
       type: Number,
       required: true,

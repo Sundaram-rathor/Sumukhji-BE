@@ -38,10 +38,11 @@ AdminRouter.get('/', (req, res) => {
 
 AdminRouter.post('/createproduct', adminAuth, uploads.single('productImage'), async (req, res) => {
     // all text inputs
-    const {title,description,price, stock, category,specification} = req.body;
+    const {title,description,price, stock, category,specification, sku_id} = req.body;
 
     //file details
     const productImage = req.file;
+    console.log(productImage)
 
     try {
         if(!title || !description || !price || !stock || !category || !productImage || !specification){
@@ -57,7 +58,8 @@ AdminRouter.post('/createproduct', adminAuth, uploads.single('productImage'), as
             category,
             stock,
             specification,
-            image: `${req.file.path}`
+            image: `${req.file.path}`,
+            sku_id
 
         })
 

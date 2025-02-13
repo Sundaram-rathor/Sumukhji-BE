@@ -15,9 +15,11 @@ export const adminAuth = (req,res,next)=>{
         if(err){
           return  res.json({message:'access not granted'})
         }
+        
 
         const user = await UserModel.find({_id:data.userId})
-        if(user.email == 'rathorsundaram50@gmail.com'){
+        console.log(user[0].email)
+        if(user[0].email == 'rathorsundaram50@gmail.com'){
             req.userId = data.userId
             next()
         }else{

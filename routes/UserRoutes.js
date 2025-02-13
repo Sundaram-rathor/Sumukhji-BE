@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CartModel, UserModel } from "../models/db.js";
+import { CartModel, ProductModel, UserModel } from "../models/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
@@ -259,7 +259,7 @@ UserRouter.delete("/deleteuser", auth, async (req, res) => {
 
 
 //creating order
-UserRouter.post('/create-order', async (req,res)=>{
+UserRouter.post('/create-order', auth, async (req,res)=>{
   const {amount, currency} = req.body;
 
   const options = {
@@ -283,7 +283,7 @@ UserRouter.post('/create-order', async (req,res)=>{
   
 })
 
-UserRouter.post('/verify-payment', (req,res)=>{
+UserRouter.post('/verify-payment',auth, (req,res)=>{
   const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
 
   const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
@@ -302,6 +302,15 @@ UserRouter.post('/verify-payment', (req,res)=>{
     })
   }
 
+})
+
+UserRouter.get('/allproducts', async (req,res)=>{
+  const allproducts = await ProductModel.find();
+
+  res.json({
+    message:'products here',
+    allproducts
+  })
 })
 
 export { UserRouter };

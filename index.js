@@ -8,7 +8,7 @@ import {UserRouter} from './routes/UserRoutes.js'
 import  {AdminRouter}  from './routes/AdminRoutes.js'
 
 const corsOption = {
-    domain:[process.env.FRONTEND_URI]
+    domain:[`${process.env.FRONTEND_URI}`]
 }
 const app = express();
 app.use(express.json());
