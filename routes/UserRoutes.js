@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CartModel, ProductModel, UserModel } from "../models/db.js";
+import { CartModel, ProductModel, UserModel, OrderModel } from "../models/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
@@ -299,8 +299,12 @@ UserRouter.post('/create-order', auth, async (req,res)=>{
 
 UserRouter.post('/verify-payment',auth, async(req,res)=>{
   const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body.response
-  const {userData, selectedProduct} = req.body;
-  console.log(userData,'and', selectedProduct)
+  const {userData, items,paymentMethod} = req.body;
+  console.log(userData,'and', items)
+  let sum =0;
+  const totalPrice = items.forEach(element => {
+    sum += element.price
+  });
 
   const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
                                     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -308,19 +312,30 @@ UserRouter.post('/verify-payment',auth, async(req,res)=>{
 
   if(generatedSignature == razorpay_signature){
 
-    // const order = await OrderModel.create({
-    //               productName,
-    //               description,
-    //               price,
-    //               category,
-    //               sku_id,
-    //               userId:req.userId
-    //             })
+    const order = await OrderModel.create({
+                  user:req.userid,
+                  items,
+                  totalAmount:sum,
+                  payment:{
+                    method:paymentMethod
+                  },
+                  shippingAddress:{
+                    fullName: userData.fullName,
+                    address: userData.address,
+                    city: userData.city,
+                    state: userData.state,
+                    country: userData.state,
+                    postalCode: userData.pinCode,
+                    phone: userData.phone,
+                  }
+
+                })
 
 
     res.json({
       success:true,
       message: 'payment verified successfully',
+      order
       
     })
   }else{
