@@ -115,8 +115,28 @@ const UserCartSchema = new Schema(
   }
 );
 
+// const OrderSchema = new Schema({
+//   productName:String,
+//   description:String,
+//   price:Number,
+//   category: String,
+//   sku_id: {
+//     type:String,
+//     ref:'product',
+//     required:true
+//   },
+
+//   userId:{
+//     type: Schema.Types.ObjectId,
+//     ref:'product',
+//     required:true
+//   }
+
+// },{timestamps:true})
+
 const UserModel = model("user", UserSchema);
 const ProductModel = model("product", ProductSchema);
 const CartModel = model("userCart", UserCartSchema);
+// const OrderModel = model("order",OrderSchema);
 
 export { UserModel, ProductModel, CartModel };

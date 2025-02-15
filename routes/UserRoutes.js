@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CartModel, ProductModel, UserModel } from "../models/db.js";
+import { CartModel, OrderModel, ProductModel, UserModel } from "../models/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
@@ -257,11 +257,25 @@ UserRouter.delete("/deleteuser", auth, async (req, res) => {
   }
 });
 
+//get user
+UserRouter.get('/getuserinfo',auth, async (req,res)=>{
+  
+  const user = await UserModel.findById({
+    _id:req.userId
+  })
+
+  console.log(user)
+
+  res.json({
+    message:'user info retreived',
+    user
+  })
+})
+
 
 //creating order
 UserRouter.post('/create-order', auth, async (req,res)=>{
   const {amount, currency} = req.body;
-
   const options = {
     amount: amount*100,
     currency:currency || "INR",
@@ -283,17 +297,31 @@ UserRouter.post('/create-order', auth, async (req,res)=>{
   
 })
 
-UserRouter.post('/verify-payment',auth, (req,res)=>{
-  const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
+UserRouter.post('/verify-payment',auth, async(req,res)=>{
+  const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body.response
+  const {userData, selectedProduct} = req.body;
+  console.log(userData,'and', selectedProduct)
 
   const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
                                     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
                                     .digest('hex')
 
   if(generatedSignature == razorpay_signature){
+
+    // const order = await OrderModel.create({
+    //               productName,
+    //               description,
+    //               price,
+    //               category,
+    //               sku_id,
+    //               userId:req.userId
+    //             })
+
+
     res.json({
       success:true,
-      message: 'payment verified successfully'
+      message: 'payment verified successfully',
+      
     })
   }else{
     res.json({
@@ -312,5 +340,14 @@ UserRouter.get('/allproducts', async (req,res)=>{
     allproducts
   })
 })
+
+
+
+// //order capturing
+// UserRouter.post('/captureorder',auth, async(req,res)=>{
+//   const {productName, description,price, category,sku_id} = req.body
+
+
+// })
 
 export { UserRouter };
