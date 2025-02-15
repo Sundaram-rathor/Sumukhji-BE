@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CartModel, OrderModel, ProductModel, UserModel } from "../models/db.js";
+import { CartModel, ProductModel, UserModel } from "../models/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
