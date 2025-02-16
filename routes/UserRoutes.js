@@ -301,7 +301,7 @@ UserRouter.post('/verify-payment',auth, async(req,res)=>{
   const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body.response
   const {userData, items,paymentMethod} = req.body;
   console.log(userData,'and', items)
-  
+
   let sum =0;
 
   items.forEach(element => {
@@ -315,7 +315,7 @@ UserRouter.post('/verify-payment',auth, async(req,res)=>{
   if(generatedSignature == razorpay_signature){
 
     const order = await OrderModel.create({
-                  user:req.userid,
+                  user:req.userId,
                   items,
                   totalAmount:sum,
                   payment:{
