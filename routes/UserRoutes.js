@@ -301,8 +301,10 @@ UserRouter.post('/verify-payment',auth, async(req,res)=>{
   const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body.response
   const {userData, items,paymentMethod} = req.body;
   console.log(userData,'and', items)
+  
   let sum =0;
-  const totalPrice = items.forEach(element => {
+
+  items.forEach(element => {
     sum += element.price
   });
 
